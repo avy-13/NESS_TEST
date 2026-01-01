@@ -1,0 +1,46 @@
+name: Automation Tests CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          playwright install --with-deps
+
+      - name: Run tests (parallel)
+        env:
+          BROWSER: ${{ matrix.browser }}
+        run: |
+          pytest -n auto \
+            --browser=${BROWSER} \
+            --alluredir=allure-results/${{ matrix.browser }}
+
+      - name: Upload Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ matrix.browser }}
+          path: allure-results/${{ matrix.browser }}

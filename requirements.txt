@@ -1,0 +1,6 @@
+playwright
+playwright-stealth
+pytest
+pytest-xdist
+pyyaml
+allure-pytest
