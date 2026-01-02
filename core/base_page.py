@@ -33,7 +33,6 @@ class BasePage:
                 print(f"[TRY {attempt}] Locator: {locator}")
 
                 el = self.page.locator(locator)
-                el.scroll_into_view_if_needed()
                 el.wait_for(state="visible", timeout=timeout)
 
                 return el
