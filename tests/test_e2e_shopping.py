@@ -30,6 +30,8 @@ def test_e2e_shopping(page, case):
 
     for url in urls:
         page.goto(url)
+        if "punish" in page.url:
+            pytest.skip("AliExpress blocked navigation in CI")
         ProductPage(page).add_to_cart()
 
     CartPage(page).assert_total_not_exceeds(
