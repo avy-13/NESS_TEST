@@ -22,7 +22,8 @@ class CartPage(BasePage):
     TOTAL = [
         "//span[contains(@class,'total-price')]",
         "//span[contains(text(),'Total')]",
-        "(//div[@class='cart-summary-item-wrapStyle-content'])[5]"
+        "(//div[@class='cart-summary-item-wrapStyle-content'])[5]",
+        "//div[@class='cart-summary-item-content']"
     ]
 
     REMOVE_ITEM = [
