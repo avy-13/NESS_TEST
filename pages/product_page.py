@@ -1,4 +1,5 @@
 from core.base_page import BasePage
+from utils.overlay_handler import OverlayHandler
 
 
 class ProductPage(BasePage):
@@ -9,5 +10,6 @@ class ProductPage(BasePage):
     ]
 
     def add_to_cart(self):
+        OverlayHandler.dismiss_overlays(self.page)
         self.find(self.ADD_TO_CART).click()
         self.page.screenshot(path="artifacts/item_added.png")

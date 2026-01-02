@@ -1,5 +1,4 @@
 class OverlayHandler:
-
     CLOSE_BUTTONS = [
         "//button[contains(text(),'Accept')]",
         "//button[contains(text(),'Agree')]",
@@ -8,7 +7,11 @@ class OverlayHandler:
         "//span[contains(text(),'×')]",
         "//img[@class='pop-close-btn']",
         ".pop-close-btn",
-        "._24EHh"
+        "._24EHh",
+        ".baxia-dialog-mask",
+        "[class*='dialog-mask']",
+        "[class*='overlay']",
+        "iframe[src*='captcha']"
     ]
 
     @staticmethod

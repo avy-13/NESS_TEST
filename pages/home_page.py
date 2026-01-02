@@ -17,6 +17,5 @@ class HomePage(BasePage):
     def search(self, query):
         self.page.wait_for_load_state("domcontentloaded")
         OverlayHandler.dismiss_overlays(self.page)
-        self.dismiss_overlays()
         self.find(self.SEARCH_INPUT).fill(query)
         self.find(self.SEARCH_BTN).click()
