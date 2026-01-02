@@ -25,7 +25,7 @@ class BasePage:
             except:
                 pass
 
-    def find(self, locators, timeout=3000, retry_delay=1):
+    def find(self, locators, timeout=5000, retry_delay=1):
         last_error = None
 
         for attempt, locator in enumerate(locators, start=1):
@@ -33,7 +33,8 @@ class BasePage:
                 print(f"[TRY {attempt}] Locator: {locator}")
 
                 el = self.page.locator(locator)
-                el.wait_for(state="visible", timeout=timeout)  # ✅ FIX
+                el.scroll_into_view_if_needed()
+                el.wait_for(state="visible", timeout=timeout)
 
                 return el
 

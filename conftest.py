@@ -53,7 +53,10 @@ def page(request, config):
         )
 
         context = browser.new_context(
-            storage_state=config.get("auth", {}).get("storage_state")
+            storage_state=config.get("auth", {}).get("storage_state"),
+            viewport={"width": 1920, "height": 1080},
+            locale="en-US",
+            timezone_id="UTC"
         )
 
         context.tracing.start(
@@ -67,6 +70,8 @@ def page(request, config):
             wait_until="domcontentloaded",
             timeout=config.get("navigation_timeout", 30000)
         )
+
+        page.wait_for_load_state("networkidle")
 
         OverlayHandler.dismiss_overlays(page)
 

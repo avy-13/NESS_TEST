@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: write
+  pages: write
+
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
