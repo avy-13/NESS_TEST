@@ -8,7 +8,7 @@ from pages.search_results_page import SearchResultsPage
 from pages.product_page import ProductPage
 from pages.cart_page import CartPage
 
-with open("config/test_data.json") as f:
+with open("data/test_data.json") as f:
     test_cases = json.load(f)
 
 

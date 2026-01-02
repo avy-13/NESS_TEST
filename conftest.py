@@ -1,3 +1,4 @@
+import allure
 import pytest
 import yaml
 import os
@@ -7,6 +8,15 @@ from utils.overlay_handler import OverlayHandler
 from playwright.sync_api import Error as PlaywrightError
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--browser",
+        action="store",
+        default=None,
+        help="Browser to run tests against: chromium, firefox, webkit"
+    )
+
+
 @pytest.fixture(scope="session")
 def config():
     with open("config/env.yaml", encoding="utf-8") as f:
@@ -14,23 +24,27 @@ def config():
 
 
 @pytest.fixture(scope="function")
-def page(config):
-    with sync_playwright() as p:
-        browser_type = config.get("browser", "chromium")
+def page(request, config):
+    browser_cli = request.config.getoption("--browser")
+    browser_name = browser_cli or config.get("browser", "chromium")
 
-        if config.get("grid", {}).get("enabled"):
-            try:
+    os.makedirs("artifacts/traces", exist_ok=True)
+    os.makedirs("artifacts/screenshots", exist_ok=True)
+
+    with sync_playwright() as p:
+
+        try:
+            if config.get("grid", {}).get("enabled"):
                 browser = p.chromium.connect_over_cdp(
                     config["grid"]["url"]
                 )
-            except PlaywrightError:
-                print("⚠️ Grid not available – falling back to local browser")
-                browser = getattr(p, browser_type).launch(
+            else:
+                browser = getattr(p, browser_name).launch(
                     headless=config.get("headless", True)
                 )
-        else:
-            browser = getattr(p, browser_type).launch(
-                headless=config.get("headless", True)
+        except PlaywrightError:
+            browser = getattr(p, browser_name).launch(
+                headless=True
             )
 
         run_id = os.environ.get(
@@ -42,20 +56,18 @@ def page(config):
             storage_state=config.get("auth", {}).get("storage_state")
         )
 
-        # context.set_default_timeout(
-        #     config.get("timeout", 5000)
-        # )
-
         context.tracing.start(
             screenshots=True,
             snapshots=True
         )
 
         page = context.new_page()
-        page.goto(config["base_url"],
-                  wait_until="domcontentloaded",
-                  timeout=config.get("navigation_timeout", 30000)
-                  )
+        page.goto(
+            config["base_url"],
+            wait_until="domcontentloaded",
+            timeout=config.get("navigation_timeout", 30000)
+        )
+
         OverlayHandler.dismiss_overlays(page)
 
         yield page
@@ -66,3 +78,20 @@ def page(config):
 
         context.close()
         browser.close()
+
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_makereport(item, call):
+        outcome = yield
+        result = outcome.get_result()
+
+        if result.when == "call" and result.failed:
+            page = item.funcargs.get("page")
+            if page:
+                screenshot_path = f"artifacts/screenshots/{item.name}.png"
+                page.screenshot(path=screenshot_path)
+
+                allure.attach.file(
+                    screenshot_path,
+                    name="Failure Screenshot",
+                    attachment_type=allure.attachment_type.PNG
+                )
