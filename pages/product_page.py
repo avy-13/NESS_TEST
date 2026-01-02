@@ -4,6 +4,7 @@ from utils.overlay_handler import OverlayHandler
 
 class ProductPage(BasePage):
     ADD_TO_CART = [
+        "button[class*='add-to-cart']",
         "//button[contains(text(),'Add to Cart')]",
         "//button[contains(text(),'Add to cart')]",
         "//button[contains(@class, 'add-to-cart')]"

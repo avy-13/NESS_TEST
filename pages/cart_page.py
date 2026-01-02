@@ -38,7 +38,7 @@ class CartPage(BasePage):
         text = self.find(self.TOTAL).inner_text()
         total = parse_price(text)
 
-        assert total <= budget * count
+        assert total <= budget * count, f"the budget: {budget} * count: {count} is < total: {total}"
 
     def remove_all(self):
         remove_locator = self._get_remove_locator()
